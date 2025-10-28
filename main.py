@@ -3,13 +3,26 @@ import requests
 import os
 from dotenv import load_dotenv
 
+from fastmcp import FastMCP
+from fastmcp.server.auth.providers.jwt import StaticTokenVerifier
+
+
 load_dotenv()
+BEARER_TOKEN = os.getenv("MCP_BEARER_TOKEN")
+# Configure authentication with StaticTokenVerifier
+verifier = StaticTokenVerifier(
+    tokens={
+        BEARER_TOKEN: {
+            "client_id": "name@company.com",
+        }
+    }
+)
 
 # Load your WeatherAPI key (store in env variable for safety)
 WEATHER_API_KEY = os.getenv("WEATHER_API_KEY", "your_api_key_here")
 print("Using Weather API Key:", WEATHER_API_KEY)
-# Create MCP app
-mcp = FastMCP("weather-mcp")
+# Create MCP app with authentication
+mcp = FastMCP(name="weather-mcp", auth=verifier)
 
 @mcp.tool()
 def get_weather(city: str) -> dict:
@@ -40,4 +53,4 @@ def get_weather(city: str) -> dict:
     }
 
 if __name__ == "__main__":
-    mcp.run(transport="streamable-http", host="0.0.0.1",port=8001)
+    mcp.run(transport="streamable-http", host="0.0.0.0",port=8001)

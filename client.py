@@ -1,6 +1,20 @@
 import asyncio 
 from fastmcp import Client, FastMCP 
-client = Client("https://alive-maroon-tern.fastmcp.app/mcp") 
+from fastmcp import Client
+from fastmcp.client.transports import StreamableHttpTransport
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+BEARER_TOKEN = os.getenv("MCP_BEARER_TOKEN")
+# Configure transport with Bearer token authentication
+transport = StreamableHttpTransport(
+    "http://0.0.0.0:8001/mcp",
+    headers={"Authorization": f"Bearer {BEARER_TOKEN}"}
+)
+
+
+client = Client(transport=transport) 
 async def main(): 
     async with client: 
         # Ensure client can connect await client.ping() 
